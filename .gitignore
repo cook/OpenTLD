@@ -1,0 +1,4 @@
+/mex/*.mexa64
+*~
+/mex/*.o
+_output/*.txt
