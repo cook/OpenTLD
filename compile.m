@@ -64,10 +64,10 @@ end
 if isunix
     disp('Unix');
     
-    include = ' -I/usr/local/include/opencv/ -I/usr/local/include/';
-    libpath = '/usr/local/lib/';
+    include = ' -I/home/schelling/include/opencv/ -I/home/schelling/include/';
+    libpath = '/home/schelling/lib/';
     
-    files = dir([libpath 'libopencv*.so.2.2']);
+    files = dir([libpath 'libopencv*.so']);
     
     lib = [];
     for i = 1:length(files),
