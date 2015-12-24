@@ -37,7 +37,7 @@ for k = 1:1 % Bootstrap
        
        % Positive
        if y(i) == 1 && conf1 <= tld.model.thr_nn % 0.65
-           if isnan(isin(2))
+           if isnan(isin(2)) % init, i.e., tld.pex is empty
                tld.pex = x(:,i);
                continue;
            end

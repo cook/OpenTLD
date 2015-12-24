@@ -15,7 +15,7 @@
 % You should have received a copy of the GNU General Public License
 % along with TLD.  If not, see <http://www.gnu.org/licenses/>.
 
-function [BB2 Conf Valid tld] = tldTracking(tld,BB1,I,J)
+function [BB2, Conf, Valid, tld] = tldTracking(tld,BB1,I,J)
 % Estimates motion of bounding box BB1 from frame I to frame J
 
 % initialize output variables

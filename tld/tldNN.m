@@ -18,7 +18,7 @@
 function [conf1,conf2,isin] = tldNN(x,tld)
 % 'conf1' ... full model (Relative Similarity)
 % 'conf2' ... validated part of model (Conservative Similarity)
-% 'isnin' ... inside positive ball, id positive ball, inside negative ball
+% 'isin' ... inside positive ball, id positive ball, inside negative ball
 
 isin = nan(3,size(x,2));
 

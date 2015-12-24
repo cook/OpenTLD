@@ -15,7 +15,7 @@
 % You should have received a copy of the GNU General Public License
 % along with TLD.  If not, see <http://www.gnu.org/licenses/>.
 
-function [BB Conf tld] = tldDetection(tld,I)
+function [BB, Conf, tld] = tldDetection(tld,I)
 % scanns the image(I) with a sliding window, returns a list of bounding
 % boxes and their confidences that match the object description
 

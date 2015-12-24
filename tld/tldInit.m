@@ -17,7 +17,7 @@
 
 function tld = tldInit(opt,tld)
 
-lk(0);
+lk(0); % init Lucas-Kanada 
 
 if ~isempty(tld);
     handle = tld.handle;
@@ -31,7 +31,7 @@ end
 % INITIALIZE DETECTOR =====================================================
 
 % Scanning grid
-[tld.grid tld.scales] = bb_scan(tld.source.bb,size(tld.source.im0.input),tld.model.min_win);
+[tld.grid, tld.scales] = bb_scan(tld.source.bb,size(tld.source.im0.input),tld.model.min_win);
 
 % Features
 tld.nGrid     = size(tld.grid,2);
@@ -118,7 +118,7 @@ tld.Y{1}    = tld.Y{1}(:,idx);
 
 % Fern
 bootstrap = 2;
-fern(2,tld.X{1},tld.Y{1},tld.model.thr_fern,bootstrap);
+fern(2,tld.X{1},tld.Y{1},tld.model.thr_fern,bootstrap); % update
 
 % Nearest Neightbour 
 
@@ -131,7 +131,7 @@ tld.model.num_init = size(tld.pex,2);
 % Estimate thresholds on validation set  ----------------------------------
 
 % Fern
-conf_fern = fern(3,nX2);
+conf_fern = fern(3,nX2); % evaluate
 tld.model.thr_fern = max(max(conf_fern)/tld.model.num_trees,tld.model.thr_fern);
 
 % Nearest neighbor
