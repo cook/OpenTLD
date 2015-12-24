@@ -162,278 +162,278 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 		// CLEANUP: function(0);
 		// =============================================================================
-	case 0:  {
-		srand(0); // fix state of random generator
+      case 0:  {
+          srand(0); // fix state of random generator
 
-		thrN = 0; nBBOX = 0; mBBOX = 0; nTREES = 0; nFEAT = 0; nSCALE = 0; iHEIGHT = 0; iWIDTH = 0;
+          thrN = 0; nBBOX = 0; mBBOX = 0; nTREES = 0; nFEAT = 0; nSCALE = 0; iHEIGHT = 0; iWIDTH = 0;
 
-		free(BBOX); BBOX = 0;
-		free(OFF); OFF = 0;
-		free(IIMG); IIMG = 0;
-		free(IIMG2); IIMG2 = 0;
-		WEIGHT.clear();
-		nP.clear();
-		nN.clear();
-		return;
-			 }
+          free(BBOX); BBOX = 0;
+          free(OFF); OFF = 0;
+          free(IIMG); IIMG = 0;
+          free(IIMG2); IIMG2 = 0;
+          WEIGHT.clear();
+          nP.clear();
+          nN.clear();
+          return;
+      }
 
-			 // INIT: function(1, img, bb, features, scales)
-			 //                0  1    2   3         4
-			 // =============================================================================
-	case 1:  {
+          // INIT: function(1, img, bb, features, scales)
+          //                0  1    2   3         4
+          // =============================================================================
+      case 1:  {
 
-		if (nrhs!=5) { mexPrintf("fern: wrong input.\n"); return; }
-		if (BBOX!=0) { mexPrintf("fern: already initialized.\n"); return; }
+          if (nrhs!=5) { mexPrintf("fern: wrong input.\n"); return; }
+          if (BBOX!=0) { mexPrintf("fern: already initialized.\n"); return; }
 
-		iHEIGHT    = mxGetM(prhs[1]);
-		iWIDTH     = mxGetN(prhs[1]);
-		nTREES     = mxGetN(mxGetField(prhs[3],0,"x"));
-		nFEAT      = mxGetM(mxGetField(prhs[3],0,"x")) / 4; // feature has 2 points: x1,y1,x2,y2
-		thrN       = 0.5 * nTREES;
-		nSCALE     = mxGetN(prhs[4]);
+          iHEIGHT    = mxGetM(prhs[1]);
+          iWIDTH     = mxGetN(prhs[1]);
+          nTREES     = mxGetN(mxGetField(prhs[3],0,"x"));
+          nFEAT      = mxGetM(mxGetField(prhs[3],0,"x")) / 4; // feature has 2 points: x1,y1,x2,y2
+          thrN       = 0.5 * nTREES;
+          nSCALE     = mxGetN(prhs[4]);
 
-		IIMG       = (double*) malloc(iHEIGHT*iWIDTH*sizeof(double));
-		IIMG2      = (double*) malloc(iHEIGHT*iWIDTH*sizeof(double));
+          IIMG       = (double*) malloc(iHEIGHT*iWIDTH*sizeof(double));
+          IIMG2      = (double*) malloc(iHEIGHT*iWIDTH*sizeof(double));
 
-		// BBOX
-		mBBOX      = mxGetM(prhs[2]); 
-		nBBOX      = mxGetN(prhs[2]);
-		BBOX	   = create_offsets_bbox(mxGetPr(prhs[2]));
-		double *x  = mxGetPr(mxGetField(prhs[3],0,"x"));
-		double *s  = mxGetPr(prhs[4]);
-		OFF		   = create_offsets(s,x);
+          // BBOX
+          mBBOX      = mxGetM(prhs[2]); 
+          nBBOX      = mxGetN(prhs[2]);
+          BBOX	   = create_offsets_bbox(mxGetPr(prhs[2]));
+          double *x  = mxGetPr(mxGetField(prhs[3],0,"x"));
+          double *s  = mxGetPr(prhs[4]);
+          OFF		   = create_offsets(s,x);
 
-		for (int i = 0; i<nTREES; i++) {
-			WEIGHT.push_back(vector<double>(pow(2.0,nBIT*nFEAT), 0));
-			nP.push_back(vector<int>(pow(2.0,nBIT*nFEAT), 0));
-			nN.push_back(vector<int>(pow(2.0,nBIT*nFEAT), 0));
-		}
+          for (int i = 0; i<nTREES; i++) {
+              WEIGHT.push_back(vector<double>(pow(2.0,nBIT*nFEAT), 0));
+              nP.push_back(vector<int>(pow(2.0,nBIT*nFEAT), 0));
+              nN.push_back(vector<int>(pow(2.0,nBIT*nFEAT), 0));
+          }
 
-		for (int i = 0; i<nTREES; i++) {
-			for (int j = 0; j < WEIGHT[i].size(); j++) {
-				WEIGHT[i].at(j) = 0;
-				nP[i].at(j) = 0;
-				nN[i].at(j) = 0;
-			}
-		}
+          for (int i = 0; i<nTREES; i++) {
+              for (int j = 0; j < WEIGHT[i].size(); j++) {
+                  WEIGHT[i].at(j) = 0;
+                  nP[i].at(j) = 0;
+                  nN[i].at(j) = 0;
+              }
+          }
 
-		return;
-			 }
+          return;
+      }
 
-	// UPDATE
-	// =============================================================================
-	case 2: {
+          // UPDATE
+          // =============================================================================
+      case 2: {
 
-		if (nrhs!=5 && nrhs!=6) { mexPrintf("Conf = function(2,X,Y,Margin,Bootstrap,Idx)\n"); return; }
-		//                                                   0 1 2 3      4         5
+          if (nrhs!=5 && nrhs!=6) { mexPrintf("Conf = function(2,X,Y,Margin,Bootstrap,Idx)\n"); return; }
+          //                                                   0 1 2 3      4         5
 
-		double *X     = mxGetPr(prhs[1]);
-		int numX      = mxGetN(prhs[1]);
-		double *Y     = mxGetPr(prhs[2]);
-		double thrP   = *mxGetPr(prhs[3]) * nTREES;
-		int bootstrap = (int) *mxGetPr(prhs[4]);
+          double *X     = mxGetPr(prhs[1]);
+          int numX      = mxGetN(prhs[1]);
+          double *Y     = mxGetPr(prhs[2]);
+          double thrP   = *mxGetPr(prhs[3]) * nTREES;
+          int bootstrap = (int) *mxGetPr(prhs[4]);
 
 
-		int step = numX / 10;
+          int step = numX / 10; // 10 is nTREES
 
-		if (nrhs == 5) {
-			for (int j = 0; j < bootstrap; j++) {
-				for (int i = 0; i < step; i++) {
-					for (int k = 0; k < 10; k++) {
+          if (nrhs == 5) {
+              for (int j = 0; j < bootstrap; j++) {
+                  for (int i = 0; i < step; i++) {
+                      for (int k = 0; k < 10; k++) {
 					
-						int I = k*step + i;
-						double *x = X+nTREES*I;
-						if (Y[I] == 1) {
-							if (measure_forest(x) <= thrP)
-								update(x,1,1);
-						} else {
-							if (measure_forest(x) >= thrN)
-								update(x,0,1);
-						}
-					}
-				}
-			}
-		}
-		if (nrhs == 6) {
-			double *idx   = mxGetPr(prhs[5]);
-			int nIdx      = mxGetN(prhs[5])*mxGetM(prhs[5]);
+                          int I = k*step + i;
+                          double *x = X+nTREES*I;
+                          if (Y[I] == 1) {
+                              if (measure_forest(x) <= thrP)
+                                  update(x,1,1);
+                          } else {
+                              if (measure_forest(x) >= thrN)
+                                  update(x,0,1);
+                          }
+                      }
+                  }
+              }
+          }
+          if (nrhs == 6) {
+              double *idx   = mxGetPr(prhs[5]);
+              int nIdx      = mxGetN(prhs[5])*mxGetM(prhs[5]);
 
 
-			for (int j = 0; j < bootstrap; j++) {
-				for (int i = 0; i < nIdx; i++) {
-					int I = idx[i]-1;
-					double *x = X+nTREES*I;
-					if (Y[I] == 1) {
-						if (measure_forest(x) <= thrP)
-							update(x,1,1);
-					} else {
-						if (measure_forest(x) >= thrN)
-							update(x,0,1);
-					}
-				}
-			}
-		}
+              for (int j = 0; j < bootstrap; j++) {
+                  for (int i = 0; i < nIdx; i++) {
+                      int I = idx[i]-1;
+                      double *x = X+nTREES*I;
+                      if (Y[I] == 1) {
+                          if (measure_forest(x) <= thrP)
+                              update(x,1,1);
+                      } else {
+                          if (measure_forest(x) >= thrN)
+                              update(x,0,1);
+                      }
+                  }
+              }
+          }
 
 
 
-		if (nlhs==1) {
-			plhs[0] = mxCreateDoubleMatrix(1, numX, mxREAL); 
-			double *resp0 = mxGetPr(plhs[0]);
+          if (nlhs==1) {
+              plhs[0] = mxCreateDoubleMatrix(1, numX, mxREAL); 
+              double *resp0 = mxGetPr(plhs[0]);
 
-			for (int i = 0; i < numX; i++) {
-				*resp0++ = measure_forest(X+nTREES*i);
-			}
-		}
+              for (int i = 0; i < numX; i++) {
+                  *resp0++ = measure_forest(X+nTREES*i);
+              }
+          }
 
-		return;
-			}
+          return;
+      }
 
-	// EVALUATE PATTERNS
-	// =============================================================================
-	case 3: {
+          // EVALUATE PATTERNS
+          // =============================================================================
+      case 3: {
 
-		if (nrhs!=2) { mexPrintf("Conf = function(2,X)\n"); return; }
-		//                                        0 1  
+          if (nrhs!=2) { mexPrintf("Conf = function(2,X)\n"); return; }
+          //                                        0 1  
 
-		double *X     = mxGetPr(prhs[1]);
-		int numX      = mxGetN(prhs[1]);
+          double *X     = mxGetPr(prhs[1]);
+          int numX      = mxGetN(prhs[1]);
 
-		plhs[0] = mxCreateDoubleMatrix(1, numX, mxREAL); 
-		double *resp0 = mxGetPr(plhs[0]);
+          plhs[0] = mxCreateDoubleMatrix(1, numX, mxREAL); 
+          double *resp0 = mxGetPr(plhs[0]);
 
-		for (int i = 0; i < numX; i++) {
-			*resp0++ = measure_forest(X+nTREES*i);
-		}
+          for (int i = 0; i < numX; i++) {
+              *resp0++ = measure_forest(X+nTREES*i);
+          }
 
-		return;
-			}
+          return;
+      }
 
-			// DETECT: TOTAL RECALL
-			// =============================================================================
-	case 4: {
+          // DETECT: TOTAL RECALL
+          // =============================================================================
+      case 4: {
 
-		if (nrhs != 6) { 
-			mexPrintf("function(4,img,maxBBox,minVar,conf,patt)\n"); 
-			//                  0 1   2       3      4    5   
-			return; 
-		}
+          if (nrhs != 6) { 
+              mexPrintf("function(4,img,maxBBox,minVar,conf,patt)\n"); 
+              //                  0 1   2       3      4    5   
+              return; 
+          }
 
-		// Pointer to preallocated output matrixes
-		double *conf = mxGetPr(prhs[4]); if ( mxGetN(prhs[4]) != nBBOX) { mexPrintf("Wrong input.\n"); return; }
-		double *patt = mxGetPr(prhs[5]); if ( mxGetN(prhs[5]) != nBBOX) { mexPrintf("Wrong input.\n"); return; }
-		for (int i = 0; i < nBBOX; i++) { conf[i] = -1; }
+          // Pointer to preallocated output matrixes
+          double *conf = mxGetPr(prhs[4]); if ( mxGetN(prhs[4]) != nBBOX) { mexPrintf("Wrong input.\n"); return; }
+          double *patt = mxGetPr(prhs[5]); if ( mxGetN(prhs[5]) != nBBOX) { mexPrintf("Wrong input.\n"); return; }
+          for (int i = 0; i < nBBOX; i++) { conf[i] = -1; }
 
-		// Setup sampling of the BBox
-		double probability = *mxGetPr(prhs[2]);
+          // Setup sampling of the BBox
+          double probability = *mxGetPr(prhs[2]);
 
-		double nTest  = nBBOX * probability; if (nTest <= 0) return;
-		if (nTest > nBBOX) nTest = nBBOX;
-		double pStep  = (double) nBBOX / nTest;
-		double pState = randdouble() * pStep;
+          double nTest  = nBBOX * probability; if (nTest <= 0) return;
+          if (nTest > nBBOX) nTest = nBBOX;
+          double pStep  = (double) nBBOX / nTest;
+          double pState = randdouble() * pStep;
 
-		// Input images
-		unsigned char *input = (unsigned char*) mxGetPr(mxGetField(prhs[1],0,"input"));
-		unsigned char *blur  = (unsigned char*) mxGetPr(mxGetField(prhs[1],0,"blur"));
+          // Input images
+          unsigned char *input = (unsigned char*) mxGetPr(mxGetField(prhs[1],0,"input"));
+          unsigned char *blur  = (unsigned char*) mxGetPr(mxGetField(prhs[1],0,"blur"));
 
-		// Integral images
-		iimg(input,IIMG,iHEIGHT,iWIDTH);
-		iimg2(input,IIMG2,iHEIGHT,iWIDTH);
+          // Integral images
+          iimg(input,IIMG,iHEIGHT,iWIDTH);
+          iimg2(input,IIMG2,iHEIGHT,iWIDTH);
 
-		// log: 0 - not visited, 1 - visited
-		int *log = (int*) calloc(nBBOX,sizeof(int));
+          // log: 0 - not visited, 1 - visited
+          int *log = (int*) calloc(nBBOX,sizeof(int));
 
-		// variance
-		double minVar = *mxGetPr(prhs[3]);
+          // variance
+          double minVar = *mxGetPr(prhs[3]);
 
-		// totalrecall
-		//double totalrecall = *mxGetPr(prhs[6]);
-		int I = 0;
-		int K = 2;
+          // totalrecall
+          //double totalrecall = *mxGetPr(prhs[6]);
+          int I = 0;
+          int K = 2;
 
-		while (1) 
-		{
-			// Get index of bbox
-			I = (int) floor(pState);
-			pState += pStep;
-			if (pState >= nBBOX) { break; }
+          while (1) 
+          {
+              // Get index of bbox
+              I = (int) floor(pState);
+              pState += pStep;
+              if (pState >= nBBOX) { break; }
 
-			// measure bbox
-			log[I] = 1;
-			double *tPatt = patt + nTREES*I;
-			conf[I] = measure_bbox_offset(blur,I,minVar,tPatt);
+              // measure bbox
+              log[I] = 1;
+              double *tPatt = patt + nTREES*I;
+              conf[I] = measure_bbox_offset(blur,I,minVar,tPatt);
 
-			// total recall
-			/*
-			if (totalrecall == 1 && conf[i] > thrN) 
-			{
+              // total recall
+              /*
+                if (totalrecall == 1 && conf[i] > thrN) 
+                {
 				int I;
 				int W = *(BBOX + i*BBOX_STEP + 6);
 
 				for (int gH = -K; gH <= K; gH++ ) 
 				{
-					for (int gW = -K; gW <= K; gW++)
-					{
-						I = i+gW+(gH)*W;
-						if (I >= 0 && I < nBBOX && log[I]==0)
-						{
-							log[I] = 1;
-							tPatt = patt + nTREES*I;
-							conf[I] = measure_bbox_offset(blur,I,minVar,tPatt);
-						}
-					}
+                for (int gW = -K; gW <= K; gW++)
+                {
+                I = i+gW+(gH)*W;
+                if (I >= 0 && I < nBBOX && log[I]==0)
+                {
+                log[I] = 1;
+                tPatt = patt + nTREES*I;
+                conf[I] = measure_bbox_offset(blur,I,minVar,tPatt);
+                }
+                }
 				}
-			}
-			*/
-		}
+                }
+              */
+          }
 
-		free(log);
-		return;
-			}
+          free(log);
+          return;
+      }
 
-			// GET PATTERNS
-	case 5: {
+          // GET PATTERNS
+      case 5: {
 
-		if (nrhs !=4) { mexPrintf("patterns = fern(5,img,idx,var)\n"); return; }
-		//                                         0 1   2   3   
+          if (nrhs !=4) { mexPrintf("patterns = fern(5,img,idx,var)\n"); return; }
+          //                                         0 1   2   3   
 
-		// image
-		unsigned char *input = (unsigned char*) mxGetPr(mxGetField(prhs[1],0,"input"));
-		unsigned char *blur  = (unsigned char*) mxGetPr(mxGetField(prhs[1],0,"blur"));
+          // image
+          unsigned char *input = (unsigned char*) mxGetPr(mxGetField(prhs[1],0,"input"));
+          unsigned char *blur  = (unsigned char*) mxGetPr(mxGetField(prhs[1],0,"blur"));
 
-		//if (mxGetM(prhs[1])!=iHEIGHT) { mexPrintf("fern: wrong input image.\n"); return; }
+          //if (mxGetM(prhs[1])!=iHEIGHT) { mexPrintf("fern: wrong input image.\n"); return; }
 
-		// bbox indexes
-		double *idx = mxGetPr(prhs[2]);
-		int numIdx = mxGetM(prhs[2]) * mxGetN(prhs[2]);
+          // bbox indexes
+          double *idx = mxGetPr(prhs[2]);
+          int numIdx = mxGetM(prhs[2]) * mxGetN(prhs[2]);
 
-		// minimal variance
-		double minVar = *mxGetPr(prhs[3]);
-		if (minVar > 0) {
-			iimg(input,IIMG,iHEIGHT,iWIDTH);
-			iimg2(input,IIMG2,iHEIGHT,iWIDTH);
-		}
+          // minimal variance
+          double minVar = *mxGetPr(prhs[3]);
+          if (minVar > 0) {
+              iimg(input,IIMG,iHEIGHT,iWIDTH);
+              iimg2(input,IIMG2,iHEIGHT,iWIDTH);
+          }
 
-		// output patterns
-		plhs[0] = mxCreateDoubleMatrix(nTREES,numIdx,mxREAL);
-		double *patt = mxGetPr(plhs[0]);
+          // output patterns
+          plhs[0] = mxCreateDoubleMatrix(nTREES,numIdx,mxREAL);
+          double *patt = mxGetPr(plhs[0]);
 
-		plhs[1] = mxCreateDoubleMatrix(1,numIdx,mxREAL);
-		double *status = mxGetPr(plhs[1]);
+          plhs[1] = mxCreateDoubleMatrix(1,numIdx,mxREAL);
+          double *status = mxGetPr(plhs[1]);
 
-		for (int j = 0; j < numIdx; j++) {
+          for (int j = 0; j < numIdx; j++) {
 
-			if (minVar > 0) {
-				double bboxvar = bbox_var_offset(IIMG,IIMG2,BBOX+j*BBOX_STEP);
-				if (bboxvar < minVar) {	continue; }
-			}
-			status[j] = 1;
-			double *tPatt = patt + j*nTREES;
-			for (int i = 0; i < nTREES; i++) {
-				tPatt[i] = (double) measure_tree_offset(blur, idx[j]-1, i);
-			}
-		}
-		return;
-			}
+              if (minVar > 0) {
+                  double bboxvar = bbox_var_offset(IIMG,IIMG2,BBOX+j*BBOX_STEP);
+                  if (bboxvar < minVar) {	continue; }
+              }
+              status[j] = 1;
+              double *tPatt = patt + j*nTREES;
+              for (int i = 0; i < nTREES; i++) {
+                  tPatt[i] = (double) measure_tree_offset(blur, idx[j]-1, i);
+              }
+          }
+          return;
+      }
 	}
 
 } 
